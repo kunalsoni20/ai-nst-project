@@ -1,14 +1,12 @@
 import os
 import torch
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, send_from_directory
 from flask_wtf import FlaskForm
 from flask_bootstrap import Bootstrap
 from werkzeug.utils import secure_filename
 from wtforms import FileField, SubmitField, FloatField, HiddenField
-from wtforms.validators import InputRequired
 from PIL import Image
 from torchvision import transforms
-import io
 
 # Import your existing AdaIN code
 from utils.models import VGGEncoder, Decoder
@@ -16,7 +14,7 @@ from utils.utils import adaptive_instance_normalization, calc_mean_std
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'supersecretkey'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'development-only-secret')
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 Bootstrap(app)
@@ -35,7 +33,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 encoder = VGGEncoder('vgg_normalised.pth').to(device)
 decoder = Decoder().to(device)
-decoder.load_state_dict(torch.load('/home/ubuntu/Desktop/NST_Code/experiment/final_exp/decoder_final.pth'))
+decoder_path = os.path.join(
+    os.path.dirname(__file__), 'experiment', 'final_exp', 'decoder_final.pth'
+)
+decoder.load_state_dict(torch.load(decoder_path, map_location=device))
 
 encoder.eval()
 decoder.eval()
@@ -150,4 +151,7 @@ if __name__ == '__main__':
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> b8c0574 (Prepare neural style transfer app for deployment)
